@@ -34,7 +34,7 @@ const Login: React.FC<{ name: string }> = () => {
           </Helmet>
           <section className="flex justify-center flex-col items-center h-[600px]">
             <StyledForm className="flex flex-col items-center justify-center shadow-md">
-              <h1 className="flex text-5xl mb-10">MINI D</h1>
+              <h1 className="flex text-5xl mb-10">Al-DC</h1>
               <div>
                 <label htmlFor="id">ID</label>
                 <input
@@ -46,9 +46,11 @@ const Login: React.FC<{ name: string }> = () => {
                   onChange={onChangeUserId}
                 />
               </div>
-              {(userId === undefined || userId.length === 0) && (
-                <span className="text-xs flex">아이디를 입력해주세요</span>
-              )}
+              <span className="text-xs h-4 flex w-full justify-end">
+                {(userId === undefined || userId.length === 0) && (
+                  <text> 아이디를 입력해주세요</text>
+                )}
+              </span>
               <div className=" relative">
                 <label htmlFor="">PW</label>
                 <input
@@ -63,9 +65,11 @@ const Login: React.FC<{ name: string }> = () => {
                   눈
                 </div>
               </div>
-              {(userPw === undefined || userPw.length === 0) && (
-                <span className="text-xs">비밀번호를 입력해주세요</span>
-              )}
+              <span className="text-xs h-4 flex w-full justify-end">
+                {(userPw === undefined || userPw.length === 0) && (
+                  <text> 비밀번호를 입력해주세요</text>
+                )}
+              </span>
               <button
                 className="button bg-blue-700 w-[200px] h-[36px] rounded mt-5"
                 onClick={handleLogin}

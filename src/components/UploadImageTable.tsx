@@ -57,7 +57,7 @@ const UploadedImageTable: React.FC<UploadedImageTableProps> = ({
           ? imageRows.map((rowImages, rowIndex) => (
               <tr key={rowIndex}>
                 {rowImages.map((imageInfo, imageIndex) => (
-                  <td key={imageIndex}>
+                  <td className="shadow-md" key={imageIndex}>
                     <ImageWrapper mode={mode}>
                       <StyledImage
                         src={imageInfo.imageUrl}
@@ -69,7 +69,7 @@ const UploadedImageTable: React.FC<UploadedImageTableProps> = ({
                           <FileSize>
                             파일크기: {formatBytes(imageInfo.fileInfo.size)}
                           </FileSize>
-                          <div>{imageInfo.fileInfo.date}</div>
+                          <FileDate>{imageInfo.fileInfo.date}</FileDate>
                         </ImageTextContainer>
                       ) : null}
                     </ImageWrapper>
@@ -109,13 +109,12 @@ const UploadedImageTable: React.FC<UploadedImageTableProps> = ({
 
 const StyledTable = styled.table<{ row: number; mode: number }>`
   width: 100%;
-  border-collapse: collapse;
-  table-layout: fixed;
+  border-collapse: ${(props) => (props.mode === 3 ? "collapse" : "inherit")}; /*
   table-layout: ${(props) =>
     props.mode === 3 ? "auto" : "fixed"}; /* 조건부 스타일링 */
+  border-spacing: ${(props) => (props.mode === 3 ? "0" : "12px")};
   th,
   td {
-    border: 1px solid #cccccc;
     &:first-child {
       border-left: none;
     }
@@ -127,7 +126,11 @@ const StyledTable = styled.table<{ row: number; mode: number }>`
     width: ${(props) =>
       props.mode === 3 ? "auto" : `calc(100% / ${props.row})`};
     height: ${(props) =>
-      props.mode === 3 ? "30px" : "auto"}; /* 조건부 스타일링 */
+      props.mode === 3
+        ? "30px"
+        : props.mode === 2
+        ? "200px"
+        : "350px"}; /* 조건부 스타일링 */
   }
   tr {
     &:first-child td {
@@ -136,6 +139,10 @@ const StyledTable = styled.table<{ row: number; mode: number }>`
     &:last-child td {
       border-bottom: none;
     }
+  }
+  /* 갭을 만들기 위한 스타일 */
+  tr + tr {
+    margin-top: 12px; /* 갭의 크기 조절 */
   }
 `;
 
@@ -147,19 +154,24 @@ const ImageWrapper = styled.div<{ mode: number }>`
   padding: 10px;
   box-sizing: border-box;
   height: ${(props) =>
-    props.mode === 3 ? "30px" : "fit-content"}; /* 조건부 스타일링 */
+    props.mode === 3
+      ? "30px"
+      : props.mode === 2
+      ? "150px"
+      : "250px"}; /* 조건부 스타일링 */
 `;
 const ImageTextContainer = styled.div`
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
   align-items: center;
   gap: 5px;
   margin-top: 10px;
   text-align: center;
 `;
 const StyledImage = styled.img`
-  max-width: 100%;
-  max-height: 100%;
+  max-width: 90%;
+  max-height: 90%;
   object-fit: contain;
 `;
 
@@ -172,5 +184,8 @@ const FileSize = styled.p`
   font-size: 12px;
   color: #666666;
 `;
-
+const FileDate = styled.p`
+  font-size: 12px;
+  color: #666666;
+`;
 export default UploadedImageTable;

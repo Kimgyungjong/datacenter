@@ -61,4 +61,13 @@ export default function Toolbar() {
 const StyledToolbar = styled.section`
   display: inline-flex;
   justify-content: center;
+  & button {
+    border-radius: 4px;
+    border: 1px solid #aaa;
+    color: black;
+    height: 2.2rem;
+    padding: 4px 6px;
+    margin-right: 4px;
+    vertical-align: middle;
+  }
 `;
