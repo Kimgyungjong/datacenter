@@ -3,6 +3,7 @@ import styled from "styled-components";
 import UploadedImageTable from "@components/UploadImageTable"; // 경로는 실제 파일 위치에 맞게 수정
 import BreadCrumb from "@components/BreadCrumb";
 import SortContainer from "../components/SortContainer";
+import TreeList from "../components/TreeList";
 interface UploadedImage {
   imageUrl: string;
   fileInfo: {
@@ -17,7 +18,6 @@ const Dashboard: React.FC = () => {
     []
   );
   const [tableMode, setTableMode] = useState<number>(1); // 1, 2, 3 중 하나의 값
-
   const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     const files = Array.from(event.dataTransfer.files);
@@ -62,7 +62,9 @@ const Dashboard: React.FC = () => {
 
   return (
     <DashboardContainer>
-      <AsideTree>어사이드 트리</AsideTree>
+      <AsideTree>
+        <TreeList />
+      </AsideTree>
       <TableSection onDrop={handleDrop} onDragOver={handleDragOver}>
         {uploadedImages.length > 0 ? (
           <TableBoundary>
