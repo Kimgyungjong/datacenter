@@ -1,9 +1,14 @@
 import React, { useState } from "react";
 import styled from "styled-components";
+import { useNavigate } from "react-router-dom"; // 리디렉션을 위해 추가
 import UploadedImageTable from "@components/UploadImageTable"; // 경로는 실제 파일 위치에 맞게 수정
 import BreadCrumb from "@components/BreadCrumb";
 import SortContainer from "../components/SortContainer";
 import TreeList from "../components/TreeList";
+import Header from "../components/Header";
+import Search from "../components/Search";
+import Toolbar from "../components/Toolbar";
+import { logout } from "../util/authUtils";
 interface UploadedImage {
   imageUrl: string;
   fileInfo: {
@@ -12,11 +17,15 @@ interface UploadedImage {
     date: string;
   };
 }
+interface DashboardProps {
+  setAuthenticated: (authenticated: boolean) => void;
+}
 
-const Dashboard: React.FC = () => {
+function Dashboard({ setAuthenticated }: DashboardProps) {
   const [uploadedImages, setUploadedImages] = useState<Array<UploadedImage>>(
     []
   );
+  const navigate = useNavigate();
   const [tableMode, setTableMode] = useState<number>(1); // 1, 2, 3 중 하나의 값
   const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
@@ -25,13 +34,16 @@ const Dashboard: React.FC = () => {
     console.log("여기에서 S3 이미지 업로드 로직이 들어가야함");
     event.currentTarget.style.border = "none";
   };
+
   const handleMode = (mode: number) => {
     setTableMode(mode);
   };
+
   const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     event.currentTarget.style.border = "2px dashed #cccccc";
   };
+
   const parsingTime = (time: string | number | Date) => {
     const lastModifiedDate = new Date(time);
     const koreanDateTime = new Intl.DateTimeFormat("ko-KR", {
@@ -59,30 +71,40 @@ const Dashboard: React.FC = () => {
     console.log(files);
     setUploadedImages((prevImages) => [...prevImages, ...newImages]);
   };
-
+  const handleLogout = () => {
+    logout();
+    setAuthenticated(false);
+    navigate("/login"); // 로그아웃 시 /login 페이지로 리디렉션
+  };
   return (
-    <DashboardContainer>
-      <AsideTree>
-        <TreeList />
-      </AsideTree>
-      <TableSection onDrop={handleDrop} onDragOver={handleDragOver}>
-        {uploadedImages.length > 0 ? (
-          <TableBoundary>
-            <BreadCrumb />
-            <SortContainer onModeChange={handleMode} />
-            <UploadedImageTable
-              images={uploadedImages}
-              imagesPerRow={tableMode === 2 ? 8 : 4}
-              mode={tableMode}
-            />
-          </TableBoundary>
-        ) : (
-          <NoImagesMessage>업로드된 이미지가 없습니다.</NoImagesMessage>
-        )}
-      </TableSection>
-    </DashboardContainer>
+    <>
+      <Header>
+        <Search />
+        <Toolbar handleLogout={handleLogout} />
+      </Header>
+      <DashboardContainer>
+        <AsideTree>
+          <TreeList />
+        </AsideTree>
+        <TableSection onDrop={handleDrop} onDragOver={handleDragOver}>
+          {uploadedImages.length > 0 ? (
+            <TableBoundary>
+              <BreadCrumb />
+              <SortContainer onModeChange={handleMode} />
+              <UploadedImageTable
+                images={uploadedImages}
+                imagesPerRow={tableMode === 2 ? 8 : 4}
+                mode={tableMode}
+              />
+            </TableBoundary>
+          ) : (
+            <NoImagesMessage>업로드된 이미지가 없습니다.</NoImagesMessage>
+          )}
+        </TableSection>
+      </DashboardContainer>
+    </>
   );
-};
+}
 
 const DashboardContainer = styled.div`
   display: grid;

@@ -1,40 +1,49 @@
 import React, { useState } from "react";
 import { Helmet, HelmetProvider } from "react-helmet-async";
-import useFakeLogin from "@src/hooks/useFakeLogin";
+import { useNavigate } from "react-router-dom";
+import { login } from "../util/authUtils";
 import { styled } from "styled-components";
-const Login: React.FC<{ name: string }> = () => {
-  const { login } = useFakeLogin();
-  const [userId, setUserId] = useState<string | undefined>();
-  const [userPw, setUserPW] = useState<string | undefined>();
+
+interface LoginProps {
+  setAuthenticated: (authenticated: boolean) => void;
+}
+
+function Login({ setAuthenticated }: LoginProps) {
+  const navigate = useNavigate();
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [showPswd, setShowPassword] = useState<boolean>(false);
-  const handleLogin = async () => {
-    if (userPw === undefined || userId === undefined) {
-      return;
-    } else {
-      await login({ id: userId, pw: userPw }); // 페이크 로그인 시도 (useFakeLogin 훅 사용)
-    }
-  };
+
   const onChangeUserId = (e: React.FormEvent<HTMLInputElement>) => {
     const newValue = e.currentTarget.value;
-    setUserId(newValue);
+    setUsername(newValue);
   };
   const onChangePw = (e: React.FormEvent<HTMLInputElement>) => {
     const newValue = e.currentTarget.value;
-    setUserPW(newValue);
+    setPassword(newValue);
   };
   const toggleShowPswd = () => {
     setShowPassword(!showPswd);
   };
+  const handleLogin = async () => {
+    try {
+      await login(username, password);
+      setAuthenticated(true);
+      navigate("/dashboard");
+    } catch (error) {
+      console.error("Login failed:", error);
+    }
+  };
   return (
     <>
       <HelmetProvider>
-        <div className="flex h-screen flex-col justify-between bg-emerald-100">
+        <div className="flex h-screen flex-col justify-between bg-white">
           <Helmet>
             <title>로그인</title>
           </Helmet>
-          <section className="flex justify-center flex-col items-center h-[600px]">
+          <section className="flex justify-center flex-col items-center h-[1000px]">
             <StyledForm className="flex flex-col items-center justify-center shadow-md">
-              <h1 className="flex text-5xl mb-10">Al-DC</h1>
+              <h1 className="flex text-5xl mb-10">Alchera-DC</h1>
               <div>
                 <label htmlFor="id">ID</label>
                 <input
@@ -42,13 +51,13 @@ const Login: React.FC<{ name: string }> = () => {
                   name="id"
                   placeholder="로그인"
                   id="id"
-                  defaultValue={userId}
+                  value={username}
                   onChange={onChangeUserId}
                 />
               </div>
-              <span className="text-xs h-4 flex w-full justify-end">
-                {(userId === undefined || userId.length === 0) && (
-                  <text> 아이디를 입력해주세요</text>
+              <span className="text-xs h-4 flex justify-end w-[248px]">
+                {(username === undefined || username.length === 0) && (
+                  <span> 아이디를 입력해주세요</span>
                 )}
               </span>
               <div className=" relative">
@@ -61,17 +70,20 @@ const Login: React.FC<{ name: string }> = () => {
                   id="pw"
                   onChange={onChangePw}
                 />
-                <div className="absolute right-0" onClick={toggleShowPswd}>
-                  눈
+                <div
+                  className="absolute right-0 text-black"
+                  onClick={toggleShowPswd}
+                >
+                  {showPswd ? "X" : "O"}
                 </div>
               </div>
-              <span className="text-xs h-4 flex w-full justify-end">
-                {(userPw === undefined || userPw.length === 0) && (
-                  <text> 비밀번호를 입력해주세요</text>
+              <span className="text-xs h-4 flex justify-end w-[248px]">
+                {(password === undefined || password.length === 0) && (
+                  <span> 비밀번호를 입력해주세요</span>
                 )}
               </span>
               <button
-                className="button bg-blue-700 w-[200px] h-[36px] rounded mt-5"
+                className="button bg-blue-700 w-[248px] h-[46px] rounded m-5"
                 onClick={handleLogin}
               >
                 로그인
@@ -82,11 +94,11 @@ const Login: React.FC<{ name: string }> = () => {
       </HelmetProvider>
     </>
   );
-};
+}
 const StyledForm = styled.div`
-  width: 250px;
-  height: 280px;
-  padding: 1rem 1.4rem;
+  width: 350px;
+  height: 350px;
+  padding: 1.4rem;
   border-radius: 4px;
   color: #fff;
   background-color: cornflowerblue;
@@ -101,7 +113,7 @@ const StyledForm = styled.div`
       color: #666;
       padding: 2px 6px;
       outline: none;
-      width: calc(100% - 60px);
+      width: calc(100%);
       border-radius: 0.25rem;
     }
   }

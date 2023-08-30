@@ -12,6 +12,7 @@ import { CustomNode } from "./@atom/CustomNode";
 import { NodeModel, CustomData } from "./types";
 import { CustomDragPreview } from "./@atom/CustomDragPreview";
 import { AddDialog } from "./@atom/AddDialog";
+import { styled } from "styled-components";
 const getLastId = (treeData: NodeModel[]) => {
   const reversedArray = [...treeData].sort((a, b) => {
     if (a.id < b.id) {
@@ -94,7 +95,7 @@ export default function TreeList() {
   return (
     <>
       <DndProvider backend={MultiBackend} options={getBackendOptions()}>
-        <button onClick={handleOpenDialog}>Add Node</button>
+        <StyledAddDir onClick={handleOpenDialog}>Add Node</StyledAddDir>
         {open && (
           <AddDialog
             open={open}
@@ -127,3 +128,23 @@ export default function TreeList() {
     </>
   );
 }
+
+const StyledAddDir = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #693ce1;
+  color: #fff;
+  border-radius: 10px;
+  padding: 9px 14px;
+  width: 120px;
+  height: 34px;
+  transition: background-color 0.1s ease-in-out;
+  &:hover {
+    background-color: #f0a050;
+  }
+  &:active {
+    width: 102px;
+    height: 30px;
+  }
+`;

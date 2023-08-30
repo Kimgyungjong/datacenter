@@ -1,16 +1,14 @@
-import React, { useState } from "react";
-import useFakeLogin from "@src/hooks/useFakeLogin";
+import { useState } from "react";
 import { styled } from "styled-components";
-
-export default function Toolbar() {
-  const { logout } = useFakeLogin();
+interface ToolbarProps {
+  handleLogout: () => void;
+}
+export default function Toolbar({ handleLogout }: ToolbarProps) {
   const [openDownload, setDownload] = useState(false);
   const [openUpload, setUpload] = useState(false);
   const [openFileInfo, setFileInfo] = useState(false);
   const [openUserInfo, setUserInfo] = useState(false);
-  const handleLogout = () => {
-    logout(); // 페이크 로그인 시도 (useFakeLogin 훅 사용)
-  };
+
   const handleModal = (type: string) => {
     switch (type) {
       case "down":

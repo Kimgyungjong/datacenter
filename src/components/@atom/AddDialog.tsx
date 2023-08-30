@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { CustomData, NodeModel } from "../types";
-
+import { styled } from "styled-components";
 type Props = {
   tree: NodeModel[];
   open: boolean;
@@ -30,7 +30,7 @@ export const AddDialog: React.FC<Props> = (props) => {
   };
 
   return props.open ? (
-    <div>
+    <StyledDialog>
       <p>Add New Node</p>
       <section>
         <div>
@@ -85,6 +85,19 @@ export const AddDialog: React.FC<Props> = (props) => {
           Submit
         </button>
       </div>
-    </div>
+    </StyledDialog>
   ) : null;
 };
+
+const StyledDialog = styled.div`
+  display: flex;
+  position: absolute;
+  background-color: #fff;
+  flex-direction: column;
+  left: calc(50% - 60px);
+  width: 400px;
+  top: calc(50% - 200px);
+  box-shadow: 0 0 8px 0px rgba(0, 0, 0, 0.5);
+  border-radius: 10px;
+  padding: 30px;
+`;
