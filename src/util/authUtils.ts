@@ -1,6 +1,5 @@
 import jwt_decode from "jwt-decode";
 import api from "@src/api/api";
-
 interface UserInfo {
   id: string;
   username: string;
