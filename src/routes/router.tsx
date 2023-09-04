@@ -7,7 +7,6 @@ import { setAuthHeader, getUserInfo } from "@src/util/authUtils";
 
 const Router: React.FC = () => {
   const [authenticated, setAuthenticated] = useState(false);
-
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {

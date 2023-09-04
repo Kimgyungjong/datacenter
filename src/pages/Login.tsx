@@ -3,6 +3,7 @@ import { Helmet, HelmetProvider } from "react-helmet-async";
 import { useNavigate } from "react-router-dom";
 import { login } from "../util/authUtils";
 import { styled } from "styled-components";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 interface LoginProps {
   setAuthenticated: (authenticated: boolean) => void;
@@ -10,13 +11,13 @@ interface LoginProps {
 
 function Login({ setAuthenticated }: LoginProps) {
   const navigate = useNavigate();
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("alchera@alcherainc.com");
   const [password, setPassword] = useState("");
   const [showPswd, setShowPassword] = useState<boolean>(false);
 
   const onChangeUserId = (e: React.FormEvent<HTMLInputElement>) => {
     const newValue = e.currentTarget.value;
-    setUsername(newValue);
+    setEmail(newValue);
   };
   const onChangePw = (e: React.FormEvent<HTMLInputElement>) => {
     const newValue = e.currentTarget.value;
@@ -27,7 +28,7 @@ function Login({ setAuthenticated }: LoginProps) {
   };
   const handleLogin = async () => {
     try {
-      await login(username, password);
+      await login(email, password, true);
       setAuthenticated(true);
       navigate("/dashboard");
     } catch (error) {
@@ -45,19 +46,19 @@ function Login({ setAuthenticated }: LoginProps) {
             <StyledForm className="flex flex-col items-center justify-center shadow-md">
               <h1 className="flex text-5xl mb-10">Alchera-DC</h1>
               <div>
-                <label htmlFor="id">ID</label>
+                <label htmlFor="email">ID</label>
                 <input
                   type="text"
                   name="id"
-                  placeholder="로그인"
-                  id="id"
-                  value={username}
+                  placeholder="이메일 주소"
+                  id="email"
+                  value={email}
                   onChange={onChangeUserId}
                 />
               </div>
               <span className="text-xs h-4 flex justify-end w-[248px]">
-                {(username === undefined || username.length === 0) && (
-                  <span> 아이디를 입력해주세요</span>
+                {(email === undefined || email.length === 0) && (
+                  <span className=" text-red-200"> 아이디를 입력해주세요</span>
                 )}
               </span>
               <div className=" relative">
@@ -74,12 +75,15 @@ function Login({ setAuthenticated }: LoginProps) {
                   className="absolute right-0 text-black"
                   onClick={toggleShowPswd}
                 >
-                  {showPswd ? "X" : "O"}
+                  {showPswd ? <FaEyeSlash /> : <FaEye />}
                 </div>
               </div>
               <span className="text-xs h-4 flex justify-end w-[248px]">
                 {(password === undefined || password.length === 0) && (
-                  <span> 비밀번호를 입력해주세요</span>
+                  <span className=" text-red-200">
+                    {" "}
+                    비밀번호를 입력해주세요
+                  </span>
                 )}
               </span>
               <button
@@ -105,6 +109,10 @@ const StyledForm = styled.div`
   & div {
     display: inline-flex;
     margin: 4px;
+    align-items: center;
+    & svg {
+      color: #999;
+    }
     & label {
       display: inherit;
       width: 60px;

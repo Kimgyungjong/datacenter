@@ -7,8 +7,11 @@ import Search from "../components/Search";
 import Toolbar from "../components/Toolbar";
 
 import { logout } from "../util/authUtils";
-import { TypeContext } from "@src/context/Context";
+import { TypeContext, UserContext } from "@src/context/Context";
 
+import DropZone from "../hooks/useDropzone";
+import { DataProps, DashboardProps } from "@/src/interfaces";
+import axios from "axios";
 // 컴포넌트를 동적으로 로드합니다.
 const ListComponent = lazy(() => import("@src/components/ListComponent"));
 const ThumbnailComponent = lazy(
@@ -16,18 +19,51 @@ const ThumbnailComponent = lazy(
 );
 const TreeComponent = lazy(() => import("@src/components/TreeComponent"));
 
-interface DashboardProps {
-  setAuthenticated: (authenticated: boolean) => void;
-}
-
 function Dashboard({ setAuthenticated }: DashboardProps) {
   const navigate = useNavigate();
   const { type } = useContext(TypeContext);
-  const [data, setData] = useState<{ id: string; name: string }[]>([]);
+  const { user, setUser } = useContext(UserContext);
+  const [data, setData] = useState<DataProps[]>([]);
+  const [isDragActive, setIsDragActive] = useState(false);
+  const [percent, setPercent] = useState(0);
+
   useEffect(() => {
+    const localUser = localStorage.getItem("userInfo");
+    setUser(JSON.parse(localUser));
     setData([
-      { id: "1", name: "aa" },
-      { id: "2", name: "aac" },
+      {
+        id: 1,
+        name: "aaa_a.zip",
+        path: "aws/aaa/vcc/qqq",
+        ext: "zip",
+        size: "1mb",
+        createUser: "홍박사",
+        createDate: "2023-09-04 15:23",
+        updateUser: "",
+        updateDate: "",
+      },
+      {
+        id: 2,
+        name: "aaa_a.png",
+        path: "aws/aaa/vcc/qqq",
+        ext: "png",
+        size: "1mb",
+        createUser: "홍박사",
+        createDate: "2023-09-04 15:23",
+        updateUser: "",
+        updateDate: "",
+      },
+      {
+        id: 3,
+        name: "aaa_a",
+        path: "aws/aaa/vcc/qqq",
+        ext: "dir",
+        size: "1mb",
+        createUser: "조주봉",
+        createDate: "2023-09-04 15:23",
+        updateUser: "",
+        updateDate: "",
+      },
     ]);
     // 데이터를 비동기적으로 가져오는 로직
     // fetchData().then((result) => {
@@ -56,6 +92,39 @@ function Dashboard({ setAuthenticated }: DashboardProps) {
     default:
       DynamicComponent = ListComponent;
   }
+  // DropZone에서 전달된 파일 데이터를 처리하는 함수
+  const handleFilesUploaded = async (file: File, id: number) => {
+    console.log("File uploaded:", file);
+    const formData = new FormData();
+    formData.append("file", file);
+    console.log(percent);
+    setIsDragActive(false);
+    try {
+      const res = await axios.post(`/file/${id}/upload`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        onUploadProgress: (e: any) => {
+          if (e.lengthComputable) {
+            setPercent(Math.round((100 * e.loaded) / e.total));
+          }
+        },
+      });
+      setTimeout(() => {
+        console.log("test");
+      }, 3000);
+    } catch (error) {
+      console.error("fail");
+    }
+  };
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault(); // 기본 동작 방지
+    setIsDragActive(true); // 드래그 중이므로 isDragActive를 true로 설정
+  };
+
+  // DragLeave 이벤트 핸들러: 파일 드래그를 취소하거나 컴포넌트를 떠날 때 호출
+  const handleDragLeave = () => {
+    setIsDragActive(false); // 드래그를 끝냈으므로 isDragActive를 false로 설정
+  };
 
   return (
     <>
@@ -63,7 +132,11 @@ function Dashboard({ setAuthenticated }: DashboardProps) {
         <Search />
         <Toolbar handleLogout={handleLogout} />
       </Header>
-      <DashboardContainer>
+      <DashboardContainer
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+      >
+        {isDragActive && <DropZone onFilesUploaded={handleFilesUploaded} />}
         <Suspense fallback={<div>Loading...</div>}>
           <DynamicComponent data={data} />
         </Suspense>
@@ -74,9 +147,10 @@ function Dashboard({ setAuthenticated }: DashboardProps) {
 
 const DashboardContainer = styled.div`
   display: grid;
-  grid-template-columns: 1fr 5fr;
+  /* grid-template-columns: 1fr 5fr; */
   gap: 0;
   height: calc(100vh - 50px);
+  margin: 0 auto;
 `;
 
 export default Dashboard;

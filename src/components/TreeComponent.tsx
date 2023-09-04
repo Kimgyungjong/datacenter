@@ -1,14 +1,16 @@
 import React from "react";
-
-interface ComponentProps {
-  data: { id: string; name: string }[];
-}
+import { ComponentProps } from "@src/interfaces";
 
 const TreeComponent: React.FC<ComponentProps> = ({ data }) => {
   return (
     <div>
       {data.map((i) => (
-        <div key={i.id}>{i.name}</div>
+        <div key={i.id}>
+          <p>{i.name}</p>
+          <p className="path">{i.path}</p>
+          <p>{i.createUser}</p>
+          <p>{i.createDate}</p>
+        </div>
       ))}
     </div>
   );

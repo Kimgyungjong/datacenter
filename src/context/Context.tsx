@@ -47,7 +47,6 @@ export const FilesProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
   const [files, setFiles] = useState<File[]>([]);
-
   useEffect(() => {
     // Your logic to fetch files
   }, []);
