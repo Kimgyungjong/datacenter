@@ -139,7 +139,7 @@ function Dashboard({ setAuthenticated }: DashboardProps) {
     const id = 0;
     const token = localStorage.getItem("token");
     const test = await axios
-      .get(`http://172.168.10.68:8080/api/directory/${id}/list`, {
+      .get(`/api/directory/${id}/list`, {
         headers: {
           "Access-Control-Allow-Origin": "*",
           "Access-Control-Expose-Headers": "Authorization",

@@ -24,7 +24,7 @@ export async function login(
   try {
     // api login
     const res = await api.post<LoginResponse>(
-      `http://172.168.10.68:8080/api/login`,
+      `/api/login`,
       {
         email,
         password,
@@ -75,7 +75,7 @@ export async function logout(id: number): Promise<void> {
   localStorage.removeItem("token");
   // api login
   const res = await api
-    .post<LoginResponse>(`http://172.168.10.68:8080/api/logout/${id}`, null, {
+    .post<LoginResponse>(`/api/logout/${id}`, null, {
       headers,
     })
     .then((res) => {
