@@ -31,7 +31,7 @@ const getLastId = (treeData: NodeModel[]) => {
   return 0;
 };
 
-export default function TreeList() {
+export default function TreeList({ children }) {
   const [treeData, setTreeData] = useState<NodeModel<CustomData>[]>(sampleData);
   const handleDrop = (newTree: NodeModel<CustomData>[]) => setTreeData(newTree);
   // 폴더생성오픈
@@ -46,16 +46,6 @@ export default function TreeList() {
 
     setTreeData(newTree);
   };
-
-  // 생성모달 오픈
-  const handleOpenDialog = () => {
-    setOpen(true);
-  };
-
-  const handleCloseDialog = () => {
-    setOpen(false);
-  };
-  // 승인
   const handleSubmit = (newNode: Omit<NodeModel<CustomData>, "id">) => {
     const lastId = getLastId(treeData);
     let incrementedId: string | number;
@@ -93,18 +83,10 @@ export default function TreeList() {
   };
 
   return (
-    <>
+    <StyledWrapper>
       <DndProvider backend={MultiBackend} options={getBackendOptions()}>
-        <StyledAddDir onClick={handleOpenDialog}>Add Node</StyledAddDir>
-        {open && (
-          <AddDialog
-            open={open}
-            tree={treeData}
-            onClose={handleCloseDialog}
-            onSubmit={handleSubmit}
-          />
-        )}
-        <Tree
+        {children}
+        {/* <Tree
           tree={treeData}
           rootId={0}
           render={(node: NodeModel<CustomData>, options) => (
@@ -123,28 +105,30 @@ export default function TreeList() {
           ) => <CustomDragPreview monitorProps={monitorProps} />}
           onDrop={handleDrop}
           sort={false}
-        />
+        /> */}
       </DndProvider>
-    </>
+    </StyledWrapper>
   );
 }
 
-const StyledAddDir = styled.button`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #693ce1;
-  color: #fff;
-  border-radius: 10px;
-  padding: 9px 14px;
-  width: 120px;
-  height: 34px;
-  transition: background-color 0.1s ease-in-out;
-  &:hover {
-    background-color: #f0a050;
-  }
-  &:active {
-    width: 102px;
-    height: 30px;
+const StyledWrapper = styled.div`
+  button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #693ce1;
+    color: #fff;
+    border-radius: 10px;
+    padding: 9px 14px;
+    width: 120px;
+    height: 34px;
+    transition: background-color 0.1s ease-in-out;
+    &:hover {
+      background-color: #f0a050;
+    }
+    &:active {
+      width: 102px;
+      height: 30px;
+    }
   }
 `;

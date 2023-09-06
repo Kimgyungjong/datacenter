@@ -7,8 +7,9 @@ import { setAuthHeader, getUserInfo } from "@src/util/authUtils";
 
 const Router: React.FC = () => {
   const [authenticated, setAuthenticated] = useState(false);
+  const token = localStorage.getItem("access_token");
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    // root 트리데이터 호출
     if (token) {
       const userInfo = getUserInfo(token);
       if (userInfo) {
@@ -18,7 +19,7 @@ const Router: React.FC = () => {
         setAuthenticated(false);
       }
     }
-  }, []);
+  }, [token]);
 
   return (
     <Routes>

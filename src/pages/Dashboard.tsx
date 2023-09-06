@@ -11,7 +11,8 @@ import { TypeContext, UserContext } from "@src/context/Context";
 
 import DropZone from "../hooks/useDropzone";
 import { DataProps, DashboardProps } from "@/src/interfaces";
-import axios from "axios";
+import { getTreeList } from "../api/dashboard";
+import TreeList from "../components/TreeList";
 // 컴포넌트를 동적으로 로드합니다.
 const ListComponent = lazy(() => import("@src/components/ListComponent"));
 const ThumbnailComponent = lazy(
@@ -21,12 +22,12 @@ const ImageComponent = lazy(() => import("@src/components/ImageComponent"));
 const TreeComponent = lazy(() => import("@src/components/TreeComponent"));
 
 function Dashboard({ setAuthenticated }: DashboardProps) {
+  getTreeList(0);
   const navigate = useNavigate();
   const { type } = useContext(TypeContext);
   const { setUser } = useContext(UserContext);
   const [data, setData] = useState<DataProps[]>([]);
   const [isDragActive, setIsDragActive] = useState(false);
-  const [percent, setPercent] = useState(0);
 
   useEffect(() => {
     const localUser = localStorage.getItem("userInfo");
@@ -137,25 +138,7 @@ function Dashboard({ setAuthenticated }: DashboardProps) {
   };
   const handleList = async () => {
     const id = 0;
-    const token = localStorage.getItem("token");
-    const test = await axios
-      .get(`/api/directory/${id}/list`, {
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Expose-Headers": "Authorization",
-          withCredentials: true,
-          Authorization: token,
-        },
-      })
-      .then((res) => {
-        setData(res.data);
-        console.log(res.data);
-      })
-      .catch(() => {
-        console.log("fail");
-        console.log(token);
-      });
-    return test;
+    getTreeList(id);
   };
   return (
     <>
@@ -163,15 +146,16 @@ function Dashboard({ setAuthenticated }: DashboardProps) {
         <Search />
         <Toolbar handleLogout={handleLogout} />
       </Header>
-      <DashboardContainer
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-      >
-        <button onClick={handleList}>가져와</button>
-        {isDragActive && <DropZone onFilesUploaded={handleFilesUploaded} />}
-        <Suspense fallback={<div>Loading...</div>}>
-          <DynamicComponent data={data} />
-        </Suspense>
+      <DashboardContainer>
+        <TreeList>
+          <button onClick={handleList}>가져와</button>
+        </TreeList>
+        <div onDragOver={handleDragOver} onDragLeave={handleDragLeave}>
+          {isDragActive && <DropZone onFilesUploaded={handleFilesUploaded} />}
+          <Suspense fallback={<div>Loading...</div>}>
+            <DynamicComponent data={data} />
+          </Suspense>
+        </div>
       </DashboardContainer>
     </>
   );
@@ -179,7 +163,7 @@ function Dashboard({ setAuthenticated }: DashboardProps) {
 
 const DashboardContainer = styled.div`
   display: grid;
-  /* grid-template-columns: 1fr 5fr; */
+  grid-template-columns: 1fr 9fr;
   gap: 0;
   height: calc(100vh - 50px);
   margin: 0 auto;

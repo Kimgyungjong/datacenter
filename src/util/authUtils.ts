@@ -1,11 +1,9 @@
 // import jwt_decode from "jwt-decode";
 import api from "@src/api/api";
-
 interface UserInfo {
   id: string;
   username: string;
 }
-//인터페이스 임시 비활성화
 interface LoginResponse {
   origin_token: string;
   response: UserInfo;
@@ -32,14 +30,16 @@ export async function login(
       },
       { headers }
     );
-    console.log(api.defaults);
     if (res.status === 200) {
-      const header_token = res.headers.authorization;
-      api.defaults.headers.common[
-        "Authorization"
-      ] = `${res.headers.authorization}`;
-      localStorage.setItem("token", header_token);
+      const accessToken = res.headers["authorization"]; // 응답헤더에서 토큰 받기
+      const refreshToken = res.headers["refresh"]; // 응답헤더에서 토큰 받기
+      console.log("access 토큰 :", accessToken);
+      console.log("refresh 토큰 :", refreshToken);
+      api.defaults.headers.common["Authorization"] = `${accessToken}`;
+
+      localStorage.setItem("access_token", accessToken); // 토큰 localStorage에 저장
       localStorage.setItem("userInfo", JSON.stringify(res.data.response));
+      console.log(api.defaults.headers);
       // 예제 JWT 토큰
       //const fake_token ="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InVzZXJuYW1lIiwiaWQiOiIxMjM0NTY3ODkwIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";
       //alchera@alcherainc.com
@@ -65,24 +65,23 @@ export function getUserInfo(token: string): UserInfo | null | string {
     // const decodeToken = jwt_decode(token) as UserInfo;
     // return decodeToken;
   } catch (error) {
-    console.error("토큰 디코딩 에러", error);
     return null;
   }
 }
 // 로그인 함수
 export async function logout(id: number): Promise<void> {
-  console.log(api.defaults);
-  localStorage.removeItem("token");
-  // api login
-  const res = await api
-    .post<LoginResponse>(`/api/logout/${id}`, null, {
-      headers,
-    })
-    .then((res) => {
-      console.log(res);
-    })
-    .catch((err) => console.log(err));
-  return res;
+  try {
+    // api login
+    const res = await api.post<LoginResponse>(`/api/logout/${id}`);
+    if (res.status === 200) {
+      localStorage.clear();
+      console.log("logout");
+    }
+  } catch (err) {
+    localStorage.clear();
+    console.error(err);
+  }
+  return Promise.resolve();
 }
 // 토큰 axios 헤더에 생성
 export function setAuthHeader(token: string | null): void {
