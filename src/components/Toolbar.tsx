@@ -1,12 +1,13 @@
 import { useContext, useState } from "react";
 import { styled } from "styled-components";
+import { FaListAlt, FaTh, FaThLarge } from "react-icons/fa";
 import { TypeContext, UserContext } from "@src/context/Context";
 interface ToolbarProps {
-  handleLogout: () => void;
+  handleLogout: (id: number) => void;
 }
 export default function Toolbar({ handleLogout }: ToolbarProps) {
-  const { setType } = useContext(TypeContext);
-  const { user, setUser } = useContext(UserContext);
+  const { type, setType } = useContext(TypeContext);
+  const { user } = useContext(UserContext);
   const [showLogoutMenu, setShowLogoutMenu] = useState(false);
   const handleModal = (type: string) => {
     setType(type);
@@ -16,17 +17,23 @@ export default function Toolbar({ handleLogout }: ToolbarProps) {
 
   const toggleLogoutMenu = () => {
     setShowLogoutMenu(!showLogoutMenu);
-    setUser({ id: "1", username: "aaa" });
   };
 
   const buttonArr = [
     {
       name: "리스트",
       type: "list",
+      component: <FaListAlt />,
+    },
+    {
+      name: "이미지",
+      type: "image",
+      component: <FaThLarge />,
     },
     {
       name: "썸네일",
       type: "thumbnail",
+      component: <FaTh />,
     },
     // {
     //   name: "계층",
@@ -35,18 +42,24 @@ export default function Toolbar({ handleLogout }: ToolbarProps) {
   ];
   return (
     <StyledToolbar>
-      {buttonArr.map((item) => (
-        <button key={item.type} onClick={() => handleModal(item.type)}>
-          {item.name}
-        </button>
-      ))}
-      <UserButton onClick={toggleLogoutMenu}>사용자</UserButton>
+      <Wrapper>
+        {buttonArr.map((item) => (
+          <Button
+            key={item.type}
+            className={type === item.type ? "active" : ""}
+            onClick={() => handleModal(item.type)}
+          >
+            {item.component}
+          </Button>
+        ))}
+      </Wrapper>
+      <UserButton onClick={toggleLogoutMenu}>{user.name} 님</UserButton>
       {showLogoutMenu && (
         <>
           <StyledWrapper onClick={toggleLogoutMenu} />
           <LogoutMenu>
-            <div className="user">{user.username}</div>
-            <button onClick={handleLogout}>로그아웃</button>
+            <div className="user">{user.name}</div>
+            <button onClick={() => handleLogout(user.id)}>로그아웃</button>
           </LogoutMenu>
         </>
       )}
@@ -55,25 +68,39 @@ export default function Toolbar({ handleLogout }: ToolbarProps) {
 }
 const StyledToolbar = styled.section`
   display: inline-flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
-
-  & button {
-    width: 70px;
-    border-radius: 4px;
-    border: 1px solid #aaa;
-    color: black;
-    height: 2.2rem;
-    padding: 4px 6px;
-    margin-right: 4px;
-    vertical-align: middle;
-    text-align: center;
+  flex: 6;
+  & div {
   }
 `;
-
+const Wrapper = styled.div`
+  background-color: rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  padding: 4px 8px;
+  display: flex;
+  align-items: center;
+`;
+const Button = styled.button`
+  width: 24px;
+  height: 24px;
+  font-size: 24px;
+  color: #aaa;
+  margin: 4px;
+  margin-right: 8px;
+  &:last-child {
+    margin-right: 4px;
+  }
+  &.active {
+    color: #333;
+  }
+  &:hover {
+    color: #333;
+  }
+`;
 const UserButton = styled.button`
   border-radius: 4px;
-  border: 1px solid #aaa;
+  border: none;
   color: black;
   height: 2.2rem;
   padding: 4px 6px;
@@ -125,6 +152,8 @@ const StyledWrapper = styled.div`
   position: absolute;
   width: 100vw;
   height: 100vh;
+  background: rgba(100, 100, 100, 0.2);
+  top: 0;
   top: 0;
   left: 0;
 `;

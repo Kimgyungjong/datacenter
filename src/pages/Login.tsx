@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, KeyboardEvent } from "react";
 import { Helmet, HelmetProvider } from "react-helmet-async";
 import { useNavigate } from "react-router-dom";
 import { login } from "../util/authUtils";
@@ -33,6 +33,17 @@ function Login({ setAuthenticated }: LoginProps) {
       navigate("/dashboard");
     } catch (error) {
       console.error("Login failed:", error);
+    }
+  };
+  const handleKeyDown = async (e: KeyboardEvent) => {
+    if (e.key === "Enter") {
+      try {
+        await login(email, password, true);
+        setAuthenticated(true);
+        navigate("/dashboard");
+      } catch (error) {
+        console.error("Login failed:", error);
+      }
     }
   };
   return (
@@ -70,6 +81,7 @@ function Login({ setAuthenticated }: LoginProps) {
                   placeholder="비밀번호"
                   id="pw"
                   onChange={onChangePw}
+                  onKeyDown={handleKeyDown}
                 />
                 <div
                   className="absolute right-0 text-black"

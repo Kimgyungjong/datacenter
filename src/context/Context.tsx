@@ -13,7 +13,13 @@ const defaultValue: ContextType = {
   setFiles: () => {},
   type: "list",
   setType: () => {},
-  user: { id: "", username: "" },
+  user: {
+    id: 1,
+    name: "user",
+    language: "ko_KR",
+    role: "ADMIN",
+    status: "ACTIVATE",
+  },
   setUser: () => {},
 };
 interface File {
@@ -21,8 +27,11 @@ interface File {
   file: File;
 }
 interface User {
-  id: string;
-  username: string;
+  id: number;
+  name: string;
+  language: string;
+  role: string;
+  status: string;
 }
 interface FilesContextType {
   files: File[];
@@ -71,7 +80,7 @@ export const TypeProvider: React.FC<{ children: ReactNode }> = ({
 export const UserProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const [user, setUser] = useState<User>({ id: "", username: "" });
+  const [user, setUser] = useState<User>(defaultValue.user);
 
   return (
     <UserContext.Provider value={{ user, setUser }}>

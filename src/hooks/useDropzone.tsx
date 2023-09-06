@@ -10,8 +10,8 @@ const DropZone: React.FC<DropZoneProps> = ({ onFilesUploaded }) => {
 
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
-      acceptedFiles.forEach((file) => {
-        console.log(file);
+      acceptedFiles.forEach((file, idx) => {
+        const directoryId = idx;
         onFilesUploaded(file, directoryId);
       });
     },
@@ -24,12 +24,14 @@ const DropZone: React.FC<DropZoneProps> = ({ onFilesUploaded }) => {
   });
 
   return (
-    <StyledContainer
-      {...getRootProps()}
-      className={dragActive ? "drag-active" : ""}
-    >
-      <p>파일을 드래그하거나 파일 업로드 버튼을 클릭하세요.</p>
-      <div className="h-[100px] mt-4">
+    <StyledContainer {...getRootProps()} className={dragActive ? "" : ""}>
+      <p style={{ pointerEvents: "none" }}>
+        파일을 드래그하거나 파일 업로드 버튼을 클릭하세요.
+      </p>
+      <div
+        className="h-[100px]"
+        style={{ paddingTop: "10px", pointerEvents: "none" }}
+      >
         <StyledButton {...getRootProps()}>
           FilUpload
           <input {...getInputProps()} />

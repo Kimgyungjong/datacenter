@@ -1,5 +1,13 @@
-import React from "react";
+import { styled } from "styled-components";
 
-export default function Search() {
-  return <div>Search</div>;
-}
+const Search = () => {
+  return <StyledSearch>Search</StyledSearch>;
+};
+const StyledSearch = styled.section`
+  display: inline-flex;
+  justify-content: space-between;
+  align-items: center;
+  flex: 5;
+`;
+
+export default Search;

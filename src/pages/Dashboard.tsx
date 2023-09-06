@@ -17,19 +17,22 @@ const ListComponent = lazy(() => import("@src/components/ListComponent"));
 const ThumbnailComponent = lazy(
   () => import("@src/components/ThumbnailComponent")
 );
+const ImageComponent = lazy(() => import("@src/components/ImageComponent"));
 const TreeComponent = lazy(() => import("@src/components/TreeComponent"));
 
 function Dashboard({ setAuthenticated }: DashboardProps) {
   const navigate = useNavigate();
   const { type } = useContext(TypeContext);
-  const { user, setUser } = useContext(UserContext);
+  const { setUser } = useContext(UserContext);
   const [data, setData] = useState<DataProps[]>([]);
   const [isDragActive, setIsDragActive] = useState(false);
   const [percent, setPercent] = useState(0);
 
   useEffect(() => {
     const localUser = localStorage.getItem("userInfo");
-    setUser(JSON.parse(localUser));
+    if (typeof localUser === "string") {
+      setUser(JSON.parse(localUser));
+    }
     setData([
       {
         id: 1,
@@ -70,8 +73,8 @@ function Dashboard({ setAuthenticated }: DashboardProps) {
     //   setData(result);
     // });
   }, []);
-  const handleLogout = () => {
-    logout();
+  const handleLogout = (id: number) => {
+    logout(id);
     setAuthenticated(false);
     navigate("/login"); // 로그아웃 시 /login 페이지로 리디렉션
   };
@@ -82,6 +85,9 @@ function Dashboard({ setAuthenticated }: DashboardProps) {
   switch (type) {
     case "list":
       DynamicComponent = ListComponent;
+      break;
+    case "image":
+      DynamicComponent = ImageComponent;
       break;
     case "thumbnail":
       DynamicComponent = ThumbnailComponent;
@@ -94,24 +100,28 @@ function Dashboard({ setAuthenticated }: DashboardProps) {
   }
   // DropZone에서 전달된 파일 데이터를 처리하는 함수
   const handleFilesUploaded = async (file: File, id: number) => {
-    console.log("File uploaded:", file);
     const formData = new FormData();
+    // 추후 스토리지 타입 생성시에 사용
+    formData.append("storageType", "typetest");
+    //파일만
     formData.append("file", file);
-    console.log(percent);
+    // 파일에서 경로를 읽어서 부여
+    formData.append("filePath", "pathtest");
+    console.log(file);
     setIsDragActive(false);
     try {
-      const res = await axios.post(`/file/${id}/upload`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        onUploadProgress: (e: any) => {
-          if (e.lengthComputable) {
-            setPercent(Math.round((100 * e.loaded) / e.total));
-          }
-        },
-      });
-      setTimeout(() => {
-        console.log("test");
-      }, 3000);
+      formData.append("file", file);
+      // 폼 객체 key 와 value 값을 순회.
+      // 폼 객체 values 값을 순회.
+      // const res = await axios.post(`/file/${id}/upload`, formData, {
+      //   headers: { "Content-Type": "multipart/form-data" },
+      //   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      //   onUploadProgress: (e: any) => {
+      //     if (e.lengthComputable) {
+      //       setPercent(Math.round((100 * e.loaded) / e.total));
+      //     }
+      //   },
+      // });
     } catch (error) {
       console.error("fail");
     }
@@ -125,7 +135,28 @@ function Dashboard({ setAuthenticated }: DashboardProps) {
   const handleDragLeave = () => {
     setIsDragActive(false); // 드래그를 끝냈으므로 isDragActive를 false로 설정
   };
-
+  const handleList = async () => {
+    const id = 0;
+    const token = localStorage.getItem("token");
+    const test = await axios
+      .get(`http://172.168.10.68:8080/api/directory/${id}/list`, {
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Expose-Headers": "Authorization",
+          withCredentials: true,
+          Authorization: token,
+        },
+      })
+      .then((res) => {
+        setData(res.data);
+        console.log(res.data);
+      })
+      .catch(() => {
+        console.log("fail");
+        console.log(token);
+      });
+    return test;
+  };
   return (
     <>
       <Header>
@@ -136,6 +167,7 @@ function Dashboard({ setAuthenticated }: DashboardProps) {
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
       >
+        <button onClick={handleList}>가져와</button>
         {isDragActive && <DropZone onFilesUploaded={handleFilesUploaded} />}
         <Suspense fallback={<div>Loading...</div>}>
           <DynamicComponent data={data} />
