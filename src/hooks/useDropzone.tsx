@@ -3,13 +3,14 @@ import { useDropzone } from "react-dropzone";
 import { styled } from "styled-components";
 interface DropZoneProps {
   onFilesUploaded: (file: File, id: number) => void;
+  handleFileArr: (arr:File[])=>void;
 }
 
-const DropZone: React.FC<DropZoneProps> = ({ onFilesUploaded }) => {
-  const [dragActive, setDragActive] = useState(false); // 드래그 상태를 관리하는 상태
-
+const DropZone: React.FC<DropZoneProps> = ({ onFilesUploaded,handleFileArr }) => {
+  const [dragActive, setDragActive] = useState(false); // 드래그상태를 관리하는 상태
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
+      handleFileArr(acceptedFiles);
       acceptedFiles.forEach((file, idx) => {
         const directoryId = idx;
         onFilesUploaded(file, directoryId);

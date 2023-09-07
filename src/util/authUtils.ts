@@ -39,7 +39,6 @@ export async function login(
 
       localStorage.setItem("access_token", accessToken); // 토큰 localStorage에 저장
       localStorage.setItem("userInfo", JSON.stringify(res.data.response));
-      console.log(api.defaults.headers);
       // 예제 JWT 토큰
       //const fake_token ="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InVzZXJuYW1lIiwiaWQiOiIxMjM0NTY3ODkwIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";
       //alchera@alcherainc.com
@@ -74,12 +73,12 @@ export async function logout(id: number): Promise<void> {
     // api login
     const res = await api.post<LoginResponse>(`/api/logout/${id}`);
     if (res.status === 200) {
-      localStorage.clear();
       console.log("logout");
+      localStorage.clear();
     }
   } catch (err) {
-    localStorage.clear();
     console.error(err);
+    localStorage.clear();
   }
   return Promise.resolve();
 }

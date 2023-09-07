@@ -1,21 +1,24 @@
 import React, { useContext, Suspense, lazy, useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom"; // 리디렉션을 위해 추가
+import { useNavigate } from "react-router-dom";
+import { Helmet, HelmetProvider } from "react-helmet-async";
 import styled from "styled-components";
 
-import Header from "../components/Header";
-import Search from "../components/Search";
-import Toolbar from "../components/Toolbar";
-
-import { logout } from "../util/authUtils";
+import api from "@src/api/api";
+import { logout } from "@src/api/login";
+import { getFileList } from "@src/api/dashboard";
 import { TypeContext, UserContext, FilesContext } from "@src/context/Context";
-
-import DropZone from "../hooks/useDropzone";
 import { DashboardProps } from "@/src/interfaces";
+
+import Header from "@src/components/Header";
+import Search from "@src/components/Search";
+import Toolbar from "@src/components/Toolbar";
 import TreeList from "../components/TreeList";
-import api from "../api/api";
+
+
+import DropZone from "@src/hooks/useDropzone";
 import { extractPath } from "../util/functions";
-import { getFileList } from "../api/dashboard";
-// 컴포넌트를 동적으로 로드합니다.
+
+// 컴포넌트를 동적으로 로드
 const ListComponent = lazy(() => import("@src/components/ListComponent"));
 const ThumbnailComponent = lazy(
   () => import("@src/components/ThumbnailComponent")
@@ -23,17 +26,16 @@ const ThumbnailComponent = lazy(
 const ImageComponent = lazy(() => import("@src/components/ImageComponent"));
 
 function Dashboard({ setAuthenticated }: DashboardProps) {
-  const navigate = useNavigate();
   const { type } = useContext(TypeContext);
   const { setUser } = useContext(UserContext);
   const { fileDir, files, setFilList } = useContext(FilesContext);
-  const [data, setData] = useState(files);
-  const [isDragActive, setIsDragActive] = useState(false);
+  const [fileArr, setFileArr] = useState<File[] | []>([]);
   const [percent, setPercent] = useState(0);
+  const [isDragActive, setIsDragActive] = useState(false);
+  const navigate = useNavigate();
+  const localUser = localStorage.getItem("userInfo");
 
   useEffect(() => {
-    console.log(files);
-    const localUser = localStorage.getItem("userInfo");
     if (typeof localUser === "string") {
       setUser(JSON.parse(localUser));
     }
@@ -41,13 +43,11 @@ function Dashboard({ setAuthenticated }: DashboardProps) {
 
   const handleLogout = (id: number) => {
     logout(id);
-    setAuthenticated(false);
-    navigate("/login"); // 로그아웃 시 /login 페이지로 리디렉션
+    localUser && setAuthenticated(false);
+    navigate("/login");
   };
-  // type 값에 따라 컴포넌트를 동적으로 로드합니다.
 
   let DynamicComponent;
-
   switch (type) {
     case "list":
       DynamicComponent = ListComponent;
@@ -63,10 +63,6 @@ function Dashboard({ setAuthenticated }: DashboardProps) {
   }
   // DropZone에서 전달된 파일 데이터를 처리하는 함수
   const handleFilesUploaded = async (file: File) => {
-    // 추후 스토리지 타입 생성시에 사용
-    // Split the path using '/'
-    extractPath(file);
-    // 파일에서 경로를 읽어서 부여
     setIsDragActive(false);
     try {
       const data = extractPath(file);
@@ -74,7 +70,6 @@ function Dashboard({ setAuthenticated }: DashboardProps) {
         headers: { "Content-Type": "multipart/form-data" },
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         onUploadProgress: (e: any) => {
-          console.log(e.loaded);
           setPercent(Math.round((100 * e.loaded) / e.total));
         },
       });
@@ -84,19 +79,23 @@ function Dashboard({ setAuthenticated }: DashboardProps) {
       console.error("fail");
     }
   };
-
+  const handleFileArr = (fileArr:File[]) => {
+    setFileArr(fileArr);
+  }
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault(); // 기본 동작 방지
+    e.preventDefault();
     setIsDragActive(true); // 드래그 중이므로 isDragActive를 true로 설정
   };
-
-  // DragLeave 이벤트 핸들러: 파일 드래그를 취소하거나 컴포넌트를 떠날 때 호출
   const handleDragLeave = () => {
     setIsDragActive(false); // 드래그를 끝냈으므로 isDragActive를 false로 설정
   };
 
   return (
     <>
+    <HelmetProvider>
+      <Helmet>
+        <title>알체라 | 데이터센터</title>
+      </Helmet>
       <Header>
         <Search />
         <Toolbar handleLogout={handleLogout} />
@@ -104,12 +103,14 @@ function Dashboard({ setAuthenticated }: DashboardProps) {
       <DashboardContainer>
         <TreeList />
         <StyledRight onDragOver={handleDragOver} onDragLeave={handleDragLeave}>
-          {isDragActive && <DropZone onFilesUploaded={handleFilesUploaded} />}
+          {(isDragActive || files.length === 0) && <DropZone onFilesUploaded={handleFilesUploaded} handleFileArr={handleFileArr}/>}
           <Suspense fallback={<div>Loading...</div>}>
+          {fileArr.map((item)=>{return <div>{item.name}{percent}</div>})}
             <DynamicComponent data={files} />
           </Suspense>
         </StyledRight>
       </DashboardContainer>
+    </HelmetProvider>
     </>
   );
 }

@@ -1,7 +1,8 @@
 import React, { createContext, useState, useEffect, ReactNode } from "react";
+import { DataProps } from "../interfaces";
 interface ContextType {
-  files: File[];
-  setFilList: React.Dispatch<React.SetStateAction<File[]>>;
+  files: DataProps[];
+  setFilList: React.Dispatch<React.SetStateAction<DataProps[]>>;
   type: string;
   setType: React.Dispatch<React.SetStateAction<string>>;
   fileDir: number;
@@ -38,8 +39,8 @@ interface User {
   status: string;
 }
 interface FilesContextType {
-  files: File[];
-  setFilList: React.Dispatch<React.SetStateAction<File[]>>;
+  files: DataProps[];
+  setFilList: React.Dispatch<React.SetStateAction<DataProps[]>>;
   fileDir: number;
   setSelectDir: React.Dispatch<React.SetStateAction<number>>;
 }
@@ -61,7 +62,7 @@ export const UserContext = createContext<UserContextType>(defaultValue);
 export const FilesProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const [files, setFilList] = useState<File[]>([]);
+  const [files, setFilList] = useState<DataProps[]>([]);
   const [fileDir, setSelectDir] = useState<number>(0);
   useEffect(() => {
     // Your logic to fetch files

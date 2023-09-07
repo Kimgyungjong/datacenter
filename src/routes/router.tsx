@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Route, Routes, Navigate } from "react-router-dom";
 import Login from "../pages/Login";
 import Dashboard from "../pages/Dashboard";
-import { setAuthHeader, getUserInfo } from "@src/util/authUtils";
+import { setAuthHeader, getUserInfo } from "@src/api/login";
 
 const Router: React.FC = () => {
   const [authenticated, setAuthenticated] = useState(false);

@@ -1,9 +1,11 @@
 import React, { useMemo, useState, useContext } from "react";
-import { typeIcon } from "@/src/util/functions";
-import { styled } from "styled-components";
 import { FaChevronDown, FaChevronUp } from "react-icons/fa";
+import { styled } from "styled-components";
+import { typeIcon } from "@/src/util/functions";
 import { getFileList } from "@src/api/dashboard";
 import { FilesContext } from "@src/context/Context";
+import { directoryProps } from "@/src/interfaces";
+
 interface ItemProps {
   id: number;
   name: string;
@@ -13,10 +15,10 @@ interface DirectoryProps {
   item: ItemProps;
   active: ItemProps | null;
   handleActive: (item: ItemProps) => void;
-  root: object;
+  root: directoryProps | null| undefined;
 }
 interface ListProps {
-  data: ItemProps | object;
+  data: directoryProps | null| undefined;
 }
 const List = React.memo(({ data }: ListProps) => {
   const [select, setSelect] = useState(false);

@@ -3,6 +3,8 @@ import { styled } from "styled-components";
 import {} from "react-icons/fa";
 import { getDirectoryList } from "@src/api/dashboard";
 import TreeItem from "./item";
+import { directoryProps } from "@/src/interfaces";
+import { listdata } from "@/src/util/constants";
 interface ListProps {
   id: number;
   name: string;
@@ -10,29 +12,12 @@ interface ListProps {
 }
 
 export default function TreeList() {
-  const listdata = [
-    {
-      id: 1,
-      name: "즐겨찾기",
-      type: "directory",
-    },
-    {
-      id: 0,
-      name: "위치",
-      type: "directory",
-    },
-    {
-      id: 2,
-      name: "태그",
-      type: "directory",
-    },
-  ];
-  const [root, setRoot] = useState();
-  const [list, setList] = useState<ListProps[] | []>(listdata);
+  const [root, setRoot] = useState< directoryProps | null | undefined>(null);
+  const [list, setList] = useState<ListProps[] | []>([]);
   const [active, setActive] = useState<ListProps | null>(null);
   const handleActive = (item: ListProps) => {
     //root 초기화
-    setRoot();
+    setRoot(null);
     setActive(item);
     getDirectoryList(item.id)
       .then((res) => {
@@ -42,7 +27,9 @@ export default function TreeList() {
         console.log(error);
       });
   };
-  useEffect(() => {}, [root]);
+  useEffect(() => {
+    setList(listdata);
+  }, [root]);
   return (
     <StyledWrapper>
       {list.map((el) => (

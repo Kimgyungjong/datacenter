@@ -1,9 +1,9 @@
 import React, { useState, KeyboardEvent } from "react";
 import { Helmet, HelmetProvider } from "react-helmet-async";
 import { useNavigate } from "react-router-dom";
-import { login } from "../util/authUtils";
-import { styled } from "styled-components";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { styled } from "styled-components";
+import { login } from "@src/api/login";
 
 interface LoginProps {
   setAuthenticated: (authenticated: boolean) => void;
@@ -26,6 +26,7 @@ function Login({ setAuthenticated }: LoginProps) {
   const toggleShowPswd = () => {
     setShowPassword(!showPswd);
   };
+
   const handleLogin = async () => {
     try {
       await login(email, password, true);
