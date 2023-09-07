@@ -5,8 +5,10 @@ export const typeIcon = (type: string) => {
     case "image/png":
     case "image/svg":
       return "src/assets/images/type-img.svg";
-    case "zip":
+    case "application/zip":
       return "src/assets/images/type-package.svg";
+    case "application/pdf":
+      return "src/assets/images/type-pdf.svg";
     case "dir":
       return "src/assets/images/type-folder.svg";
     default:

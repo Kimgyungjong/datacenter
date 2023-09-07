@@ -8,7 +8,11 @@ const ThumbnailComponent: React.FC<ComponentProps> = ({ data }) => {
     <div>
       {data.map((i) => (
         <StyledItem key={i.id}>
-          <img src={i.url} alt="" />
+          {i.ext.startsWith("image/") ? (
+            <img src={i.url} alt="" />
+          ) : (
+            <img src={typeIcon(i.ext)} alt="" />
+          )}
           <p>{i.name}</p>
         </StyledItem>
       ))}
