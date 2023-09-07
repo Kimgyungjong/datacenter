@@ -1,28 +1,14 @@
 import React from "react";
 import { styled } from "styled-components";
 import { ComponentProps } from "@src/interfaces";
+import { typeIcon } from "@src/util/functions";
 
 const ThumbnailComponent: React.FC<ComponentProps> = ({ data }) => {
-  const typeIcon = (type: string) => {
-    switch (type) {
-      case "jpeg":
-      case "jpg":
-      case "png":
-      case "svg":
-        return "src/assets/images/type-img.svg";
-      case "zip":
-        return "src/assets/images/type-package.svg";
-      case "dir":
-        return "src/assets/images/type-folder.svg";
-      default:
-        return "src/assets/images/type-unknown.svg";
-    }
-  };
   return (
     <div>
       {data.map((i) => (
         <StyledItem key={i.id}>
-          <img src={typeIcon(i.ext)} alt="" />
+          <img src={i.url} alt="" />
           <p>{i.name}</p>
         </StyledItem>
       ))}
@@ -37,6 +23,7 @@ const StyledItem = styled.div`
   & img {
     pointer-events: none;
     width: 80px;
+    min-width: 80px;
   }
 `;
 export default ThumbnailComponent;

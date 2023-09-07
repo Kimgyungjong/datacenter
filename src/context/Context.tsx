@@ -1,18 +1,22 @@
 import React, { createContext, useState, useEffect, ReactNode } from "react";
 interface ContextType {
   files: File[];
-  setFiles: React.Dispatch<React.SetStateAction<File[]>>;
+  setFilList: React.Dispatch<React.SetStateAction<File[]>>;
   type: string;
   setType: React.Dispatch<React.SetStateAction<string>>;
+  fileDir: number;
+  setSelectDir: React.Dispatch<React.SetStateAction<number>>;
   user: User;
   setUser: React.Dispatch<React.SetStateAction<User>>;
 }
 
 const defaultValue: ContextType = {
   files: [],
-  setFiles: () => {},
+  setFilList: () => {},
   type: "list",
   setType: () => {},
+  fileDir: 0,
+  setSelectDir: () => {},
   user: {
     id: 1,
     name: "user",
@@ -35,7 +39,9 @@ interface User {
 }
 interface FilesContextType {
   files: File[];
-  setFiles: React.Dispatch<React.SetStateAction<File[]>>;
+  setFilList: React.Dispatch<React.SetStateAction<File[]>>;
+  fileDir: number;
+  setSelectDir: React.Dispatch<React.SetStateAction<number>>;
 }
 
 interface TypeContextType {
@@ -55,13 +61,14 @@ export const UserContext = createContext<UserContextType>(defaultValue);
 export const FilesProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const [files, setFiles] = useState<File[]>([]);
+  const [files, setFilList] = useState<File[]>([]);
+  const [fileDir, setSelectDir] = useState<number>(0);
   useEffect(() => {
     // Your logic to fetch files
   }, []);
 
   return (
-    <FilesContext.Provider value={{ files, setFiles }}>
+    <FilesContext.Provider value={{ files, setFilList, fileDir, setSelectDir }}>
       {children}
     </FilesContext.Provider>
   );
@@ -70,7 +77,6 @@ export const TypeProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
   const [type, setType] = useState<string>("list");
-
   return (
     <TypeContext.Provider value={{ type, setType }}>
       {children}

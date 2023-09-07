@@ -28,10 +28,7 @@ const DropZone: React.FC<DropZoneProps> = ({ onFilesUploaded }) => {
       <p style={{ pointerEvents: "none" }}>
         파일을 드래그하거나 파일 업로드 버튼을 클릭하세요.
       </p>
-      <div
-        className="h-[100px]"
-        style={{ paddingTop: "10px", pointerEvents: "none" }}
-      >
+      <div className="h-[100px]" style={{ paddingTop: "10px" }}>
         <StyledButton {...getRootProps()}>
           FilUpload
           <input {...getInputProps()} />
@@ -51,8 +48,8 @@ const StyledContainer = styled.section`
   border: 2px dashed #aaa;
   background-color: rgba(255, 255, 255, 0.5);
   backdrop-filter: blur(10px);
-  width: calc(100vw - 60px);
-  height: calc(100vh - 80px);
+  width: calc(100vw - 300px);
+  height: calc(100vh - 130px);
   padding: 40px;
   justify-content: center;
   align-items: center;
@@ -75,5 +72,6 @@ const StyledButton = styled.button`
     width: 102px;
     height: 30px;
   }
+  cursor: pointer;
 `;
 export default DropZone;
