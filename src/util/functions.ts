@@ -22,5 +22,9 @@ export const extractPath = (file: any) => {
   formData.append("storageType", "S3");
   formData.append("filePath", file.path);
   formData.append("file", file);
+
+  for (const key of formData.keys()) {
+    console.log(key, ":", formData.get(key));
+  }
   return formData;
 };

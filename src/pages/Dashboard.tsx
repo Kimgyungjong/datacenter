@@ -14,7 +14,6 @@ import Search from "@src/components/Search";
 import Toolbar from "@src/components/Toolbar";
 import TreeList from "../components/TreeList";
 
-
 import DropZone from "@src/hooks/useDropzone";
 import { extractPath } from "../util/functions";
 
@@ -32,6 +31,7 @@ function Dashboard({ setAuthenticated }: DashboardProps) {
   const [fileArr, setFileArr] = useState<File[] | []>([]);
   const [percent, setPercent] = useState(0);
   const [isDragActive, setIsDragActive] = useState(false);
+  const [option, setOption] = useState({ dirId: fileDir });
   const navigate = useNavigate();
   const localUser = localStorage.getItem("userInfo");
 
@@ -62,26 +62,29 @@ function Dashboard({ setAuthenticated }: DashboardProps) {
       DynamicComponent = ListComponent;
   }
   // DropZone에서 전달된 파일 데이터를 처리하는 함수
-  const handleFilesUploaded = async (file: File) => {
+  const handleFilesUploaded = (file: File) => {
     setIsDragActive(false);
     try {
       const data = extractPath(file);
-      await api.post(`api/file/${fileDir}/upload`, data, {
+      console.log(fileDir, data);
+      const res = api.post(`api/file/${fileDir}/upload`, data, {
         headers: { "Content-Type": "multipart/form-data" },
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         onUploadProgress: (e: any) => {
           setPercent(Math.round((100 * e.loaded) / e.total));
         },
       });
+
       // 업로드 된 파일들을 계속 불러온다.
-      getFileList(fileDir).then((res) => setFilList(res.data.response));
+      //getFileList(fileDir).then((res) => setFilList(res.data.response));
+      return res;
     } catch (error) {
       console.error("fail");
     }
   };
-  const handleFileArr = (fileArr:File[]) => {
+  const handleFileArr = (fileArr: File[]) => {
     setFileArr(fileArr);
-  }
+  };
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     setIsDragActive(true); // 드래그 중이므로 isDragActive를 true로 설정
@@ -92,25 +95,40 @@ function Dashboard({ setAuthenticated }: DashboardProps) {
 
   return (
     <>
-    <HelmetProvider>
-      <Helmet>
-        <title>알체라 | 데이터센터</title>
-      </Helmet>
-      <Header>
-        <Search />
-        <Toolbar handleLogout={handleLogout} />
-      </Header>
-      <DashboardContainer>
-        <TreeList />
-        <StyledRight onDragOver={handleDragOver} onDragLeave={handleDragLeave}>
-          {(isDragActive || files.length === 0) && <DropZone onFilesUploaded={handleFilesUploaded} handleFileArr={handleFileArr}/>}
-          <Suspense fallback={<div>Loading...</div>}>
-          {fileArr.map((item)=>{return <div>{item.name}{percent}</div>})}
-            <DynamicComponent data={files} />
-          </Suspense>
-        </StyledRight>
-      </DashboardContainer>
-    </HelmetProvider>
+      <HelmetProvider>
+        <Helmet>
+          <title>알체라 | 데이터센터</title>
+        </Helmet>
+        <Header>
+          <Search />
+          <Toolbar handleLogout={handleLogout} />
+        </Header>
+        <DashboardContainer>
+          <TreeList option={option} />
+          <StyledRight
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+          >
+            {isDragActive && (
+              <DropZone
+                onFilesUploaded={handleFilesUploaded}
+                handleFileArr={handleFileArr}
+              />
+            )}
+            <Suspense fallback={<div>Loading...</div>}>
+              {/* {fileArr.map((item, idx) => {
+                return (
+                  <div key={idx}>
+                    {item.name}
+                    {percent}
+                  </div>
+                );
+              })} */}
+              <DynamicComponent data={files} />
+            </Suspense>
+          </StyledRight>
+        </DashboardContainer>
+      </HelmetProvider>
     </>
   );
 }

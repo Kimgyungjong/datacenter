@@ -10,14 +10,19 @@ interface ListProps {
   name: string;
   type: string;
 }
-
-export default function TreeList() {
-  const [root, setRoot] = useState< directoryProps | null | undefined>(null);
+interface OptionProps {
+  dirId: number;
+}
+export default function TreeList({ option }: OptionProps) {
+  const [root, setRoot] = useState<directoryProps | null | undefined>(null);
   const [list, setList] = useState<ListProps[] | []>([]);
   const [active, setActive] = useState<ListProps | null>(null);
+  const [activeId, setActiveId] = useState(option.dirId);
   const handleActive = (item: ListProps) => {
     //root 초기화
+    setActiveId(item.id);
     setRoot(null);
+    console.log(item);
     setActive(item);
     getDirectoryList(item.id)
       .then((res) => {
@@ -29,9 +34,11 @@ export default function TreeList() {
   };
   useEffect(() => {
     setList(listdata);
-  }, [root]);
+    setActiveId(option.dirId);
+  }, []);
   return (
     <StyledWrapper>
+      <h1>폴더 루트 : {option.dirId}</h1>
       {list.map((el) => (
         <TreeItem
           key={el.id}
@@ -39,6 +46,7 @@ export default function TreeList() {
           handleActive={handleActive}
           root={root}
           active={active}
+          activeId={activeId}
         />
       ))}
     </StyledWrapper>

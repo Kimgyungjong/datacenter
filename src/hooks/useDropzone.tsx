@@ -2,22 +2,40 @@ import React, { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { styled } from "styled-components";
 interface DropZoneProps {
-  onFilesUploaded: (file: File, id: number) => void;
-  handleFileArr: (arr:File[])=>void;
+  onFilesUploaded: (file: File) => void;
+  handleFileArr: (arr: File[]) => void;
 }
 
-const DropZone: React.FC<DropZoneProps> = ({ onFilesUploaded,handleFileArr }) => {
+const DropZone: React.FC<DropZoneProps> = ({ onFilesUploaded }) => {
   const [dragActive, setDragActive] = useState(false); // 드래그상태를 관리하는 상태
+
   const onDrop = useCallback(
-    (acceptedFiles: File[]) => {
-      handleFileArr(acceptedFiles);
-      acceptedFiles.forEach((file, idx) => {
-        const directoryId = idx;
-        onFilesUploaded(file, directoryId);
-      });
+    async (acceptedFiles) => {
+      for (let idx = 0; idx < acceptedFiles.length; idx++) {
+        const file = acceptedFiles[idx];
+
+        // Implement your synchronous upload logic here
+        try {
+          await onFilesUploaded(file);
+        } catch (error) {
+          console.error(`Error uploading file ${file.name}:`, error);
+        }
+      }
     },
     [onFilesUploaded]
   );
+
+  //기존 업로드
+  // const onDrop = useCallback(
+  //   (acceptedFiles: File[]) => {
+  //     handleFileArr(acceptedFiles);
+  //     acceptedFiles.forEach((file, idx) => {
+  //       const directoryId = idx;
+  //       onFilesUploaded(file, directoryId);
+  //     });
+  //   },
+  //   [onFilesUploaded]
+  // );
   const { getRootProps, getInputProps } = useDropzone({
     onDrop,
     onDragEnter: () => setDragActive(true), // 드래그가 시작될 때

@@ -3,7 +3,7 @@ import { Helmet, HelmetProvider } from "react-helmet-async";
 import { useNavigate } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { styled } from "styled-components";
-import { login } from "@src/api/login";
+import { LoginResponse, login } from "@src/api/login";
 
 interface LoginProps {
   setAuthenticated: (authenticated: boolean) => void;
@@ -26,14 +26,34 @@ function Login({ setAuthenticated }: LoginProps) {
   const toggleShowPswd = () => {
     setShowPassword(!showPswd);
   };
-
+  const stateSwitch = (code: LoginResponse | string | null) => {
+    switch (code) {
+      case "TK0001":
+      case "TK0002":
+        alert("토큰이 유효하지 않습니다");
+        break;
+      case "TK0003":
+        alert("중복로그인 입니다.");
+        break;
+      case "L0001":
+        alert("계정정보 없음");
+        break;
+      case "L0002":
+        alert("비밀번호 불일치");
+        break;
+      default:
+        alert("로그인실패");
+        break;
+    }
+  };
   const handleLogin = async () => {
-    try {
-      await login(email, password, true);
+    const response = await login(email, password, true);
+    if (response === "") {
       setAuthenticated(true);
       navigate("/dashboard");
-    } catch (error) {
-      console.error("Login failed:", error);
+    } else {
+      stateSwitch(response);
+      navigate("/login");
     }
   };
   const handleKeyDown = async (e: KeyboardEvent) => {

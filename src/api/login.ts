@@ -1,7 +1,6 @@
 import api from "./api";
-import { useNavigate } from 'react-router-dom';
 
-interface LoginResponse {
+export interface LoginResponse {
   origin_token: string;
   response: object;
   msg: string;
@@ -19,38 +18,34 @@ export async function login(
   email: string,
   password: string,
   forceLogin?: boolean
-): Promise<void> {
-  const navigate = useNavigate(); // Get the navigate function from React Router
-
+): Promise<LoginResponse | string | null> {
   try {
     // api login
-    const res = await api.post<LoginResponse>(
-      `/api/login`,
-      {
-        email,
-        password,
-        forceLogin,
-      }
-    );
+    const res = await api.post<LoginResponse>(`/api/login`, {
+      email,
+      password,
+      forceLogin,
+    });
     if (res.status === 200) {
-      const accessToken = res.headers["authorization"]; // 응답헤더에서 토큰 받기
-      const refreshToken = res.headers["refresh"]; // 응답헤더에서 토큰 받기
-      console.log("access 토큰 :", accessToken);
-      console.log("refresh 토큰 :", refreshToken);
+      const accessToken = res.headers["authorization"];
+      const refreshToken = res.headers["refresh"];
+      console.log("access token:", accessToken);
+      console.log("refresh token:", refreshToken);
       api.defaults.headers.common["Authorization"] = `${accessToken}`;
 
-      localStorage.setItem("access_token", accessToken); // 토큰 localStorage에 저장
+      localStorage.setItem("access_token", accessToken);
       localStorage.setItem("userInfo", JSON.stringify(res.data.response));
-    } else if (
-      res.data.code === 'TK0001'
-    ) {
-      alert('토큰이 만료됐습니다.')
-      navigate('/login');
+
+      return res.data.code;
+    } else if (res.data.code === "TK0001") {
+      return res.data.code;
+    } else {
+      return res.data.code;
     }
   } catch (err) {
     console.error(err);
+    return null;
   }
-  return Promise.resolve();
 }
 
 // 토큰 axios 헤더에 생성

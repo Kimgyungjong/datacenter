@@ -15,10 +15,11 @@ interface DirectoryProps {
   item: ItemProps;
   active: ItemProps | null;
   handleActive: (item: ItemProps) => void;
-  root: directoryProps | null| undefined;
+  root: directoryProps | null | undefined;
+  activeId: number;
 }
 interface ListProps {
-  data: directoryProps | null| undefined;
+  data: directoryProps | null | undefined;
 }
 const List = React.memo(({ data }: ListProps) => {
   const [select, setSelect] = useState(false);
@@ -57,8 +58,8 @@ const List = React.memo(({ data }: ListProps) => {
 });
 
 const TreeItem = React.memo(
-  ({ item, active, handleActive, root }: DirectoryProps) => {
-    const isActiveItem = active === item && root !== undefined;
+  ({ item, active, activeId, handleActive, root }: DirectoryProps) => {
+    const isActiveItem = activeId === item.id && root !== undefined;
     const memoizedList = useMemo(() => {
       return <List data={root} />;
     }, [root]);
@@ -68,7 +69,7 @@ const TreeItem = React.memo(
         <div>
           <StyledWrapper
             onClick={() => handleActive(item)}
-            className={`list-item ${active === item && "active"}`}
+            className={`list-item ${activeId === item.id && "active"}`}
           >
             <span className="ml-2">{item.name}</span>
             {isActiveItem ? <FaChevronDown /> : <FaChevronUp />}
