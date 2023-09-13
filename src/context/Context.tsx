@@ -1,19 +1,23 @@
 import React, { createContext, useState, useEffect, ReactNode } from "react";
-import { DataProps } from "../interfaces";
+import { DataProps, SortProps } from "../interfaces";
 interface ContextType {
   files: DataProps[];
-  setFilList: React.Dispatch<React.SetStateAction<DataProps[]>>;
+  setFileList: React.Dispatch<React.SetStateAction<DataProps[]>>;
   type: string;
   setType: React.Dispatch<React.SetStateAction<string>>;
+  sortOption: SortProps;
+  setSortOption: React.Dispatch<React.SetStateAction<SortProps>>;
   fileDir: number;
   setSelectDir: React.Dispatch<React.SetStateAction<number>>;
   user: User;
   setUser: React.Dispatch<React.SetStateAction<User>>;
+  selectedList: number;
+  setSelectList: React.Dispatch<React.SetStateAction<number>>;
 }
 
 const defaultValue: ContextType = {
   files: [],
-  setFilList: () => {},
+  setFileList: () => {},
   type: "list",
   setType: () => {},
   fileDir: 0,
@@ -26,11 +30,16 @@ const defaultValue: ContextType = {
     status: "ACTIVATE",
   },
   setUser: () => {},
+  sortOption: {
+    storageType: "S3",
+    sort: "NAME",
+    order: "ASC",
+  },
+  setSortOption: () => {},
+  selectedList: 1,
+  setSelectList: () => {},
 };
-interface File {
-  id: number;
-  file: File;
-}
+
 interface User {
   id: number;
   name: string;
@@ -40,14 +49,18 @@ interface User {
 }
 interface FilesContextType {
   files: DataProps[];
-  setFilList: React.Dispatch<React.SetStateAction<DataProps[]>>;
+  setFileList: React.Dispatch<React.SetStateAction<DataProps[]>>;
   fileDir: number;
   setSelectDir: React.Dispatch<React.SetStateAction<number>>;
+  selectedList: number;
+  setSelectList: React.Dispatch<React.SetStateAction<number>>;
 }
 
 interface TypeContextType {
   type: string;
   setType: React.Dispatch<React.SetStateAction<string>>;
+  sortOption: { storageType: string; sort: string; order: string };
+  setSortOption: React.Dispatch<React.SetStateAction<SortProps>>;
 }
 
 interface UserContextType {
@@ -62,14 +75,24 @@ export const UserContext = createContext<UserContextType>(defaultValue);
 export const FilesProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const [files, setFilList] = useState<DataProps[]>([]);
+  const [files, setFileList] = useState<DataProps[]>([]);
   const [fileDir, setSelectDir] = useState<number>(0);
+  const [selectedList, setSelectList] = useState(1);
   useEffect(() => {
     // Your logic to fetch files
   }, []);
 
   return (
-    <FilesContext.Provider value={{ files, setFilList, fileDir, setSelectDir }}>
+    <FilesContext.Provider
+      value={{
+        files,
+        setFileList,
+        fileDir,
+        setSelectDir,
+        selectedList,
+        setSelectList,
+      }}
+    >
       {children}
     </FilesContext.Provider>
   );
@@ -78,8 +101,9 @@ export const TypeProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
   const [type, setType] = useState<string>("list");
+  const [sortOption, setSortOption] = useState(defaultValue.sortOption);
   return (
-    <TypeContext.Provider value={{ type, setType }}>
+    <TypeContext.Provider value={{ type, setType, sortOption, setSortOption }}>
       {children}
     </TypeContext.Provider>
   );

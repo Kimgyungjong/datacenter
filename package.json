@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite --port 3000 --m development",
     "active": "vite --port 3000 --m active",
-    "build": "tsc && vite build --m ---outDir build",
+    "build": "tsc && vite build --m production --outDir build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },

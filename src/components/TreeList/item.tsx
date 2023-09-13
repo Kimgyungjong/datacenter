@@ -1,74 +1,106 @@
-import React, { useMemo, useState, useContext } from "react";
+import React, { useMemo, useState, useContext, useEffect } from "react";
 import { FaChevronDown, FaChevronUp } from "react-icons/fa";
 import { styled } from "styled-components";
 import { typeIcon } from "@/src/util/functions";
-import { getFileList } from "@src/api/dashboard";
-import { FilesContext } from "@src/context/Context";
-import { directoryProps } from "@/src/interfaces";
+import { FilesContext, TypeContext } from "@src/context/Context";
+import { ListProps, TreeProps, ItemProps } from "@/src/interfaces";
+import { useFiles } from "@/src/api/dashboard";
+import { codePresenter } from "@/src/util/functions";
 
-interface ItemProps {
-  id: number;
-  name: string;
-  type: string;
-}
-interface DirectoryProps {
-  item: ItemProps;
-  active: ItemProps | null;
-  handleActive: (item: ItemProps) => void;
-  root: directoryProps | null | undefined;
-  activeId: number;
-}
-interface ListProps {
-  data: directoryProps | null | undefined;
-}
-const List = React.memo(({ data }: ListProps) => {
-  const [select, setSelect] = useState(false);
-  const { setFilList, setSelectDir } = useContext(FilesContext);
-  const handleFileList = (id: number) => {
-    setSelect(!select);
-    if (!select === true) {
-      console.log("call api");
-      getFileList(id)
-        .then((res) => {
-          setFilList(res.data.response);
-          setSelectDir(id);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    } else {
-      console.log("reset");
-      setFilList([]);
+type payload = {
+  id: number | undefined;
+  option: { storageType: string; sort: string; order: string };
+};
+
+const List = React.memo(({ folderArray, isActiveItem }: ListProps) => {
+  const { sortOption } = useContext(TypeContext);
+  const { setFileList, setSelectDir } = useContext(FilesContext);
+
+  const initialActiveListId = useMemo(() => {
+    if (folderArray && folderArray.length > 0) {
+      return folderArray[0].id;
     }
-    // 파일정보를 저장해서 콘텍스트로 넘긴다
+    return 1; // Default to undefined when folderArray is null or empty
+  }, [folderArray]);
+
+  const [activeListId, setActiveItemId] = useState<number | undefined>(
+    initialActiveListId
+  );
+
+  const [queryParam, setQueryParam] = useState<payload>({
+    id: activeListId, // Initially set to initialActiveListId
+    option: sortOption,
+  });
+  const { data } = useFiles(queryParam);
+
+  const handleFileList = (id: number | undefined) => {
+    setActiveItemId(id); // Update activeListId when a different item is clicked
+    setQueryParam({ id, option: sortOption });
   };
+  useEffect(() => {
+    if (folderArray && folderArray.length > 0) {
+      // Set initialActiveListId to the ID of the first item in folderArray
+      const newInitialActiveListId = folderArray[0].id;
+      setActiveItemId(newInitialActiveListId);
+    }
+  }, [folderArray]);
+  useEffect(() => {
+    if (isActiveItem && activeListId !== undefined) {
+      setSelectDir(activeListId);
+      setQueryParam({ id: activeListId, option: sortOption });
+    } else {
+      console.log("응?" + activeListId + isActiveItem);
+    }
+  }, [activeListId, isActiveItem, sortOption]);
+
+  useEffect(() => {
+    if (data) {
+      if (data?.code !== "") {
+        codePresenter(data?.code);
+      } else {
+        if (isActiveItem !== undefined) {
+          setFileList(data.response);
+        }
+      }
+    }
+  }, [data]);
+
   return (
     <>
-      {data && (
-        <StyledList
-          className={`${select && "active"}`}
-          onClick={() => handleFileList(data.id)}
-        >
-          <img src={typeIcon("dir")} alt="" style={{ width: "24px" }} />
-          <div>{data.name}</div>
-        </StyledList>
-      )}
+      {folderArray &&
+        folderArray.map((folder) => (
+          <StyledList
+            key={`${folder.name}_${folder.id}`}
+            className={`${activeListId === folder.id && "active"}`}
+            onClick={() => handleFileList(folder.id)}
+          >
+            <img src={typeIcon("dir")} alt="" style={{ width: "24px" }} />
+            <div>{folder.name}</div>
+          </StyledList>
+        ))}
     </>
   );
 });
 
 const TreeItem = React.memo(
-  ({ item, active, activeId, handleActive, root }: DirectoryProps) => {
-    const isActiveItem = activeId === item.id && root !== undefined;
+  ({ item, activeId, handleActive, folderArray }: TreeProps) => {
+    const isActiveItem = activeId === item.id && folderArray !== undefined;
     const memoizedList = useMemo(() => {
-      return <List data={root} />;
-    }, [root]);
+      return <List folderArray={folderArray} isActiveItem={isActiveItem} />;
+    }, [folderArray]);
+
+    const handleItem = (item: ItemProps) => {
+      if (activeId === item.id) {
+        return;
+      }
+      handleActive(item);
+    };
 
     return (
       <div key={item.id}>
         <div>
           <StyledWrapper
-            onClick={() => handleActive(item)}
+            onClick={() => handleItem(item)}
             className={`list-item ${activeId === item.id && "active"}`}
           >
             <span className="ml-2">{item.name}</span>
@@ -85,6 +117,9 @@ const StyledList = styled.div`
   display: flex;
   margin: 10px 12px;
   padding-left: 24px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
   &.active {
     background-color: #a1e0ff;
   }

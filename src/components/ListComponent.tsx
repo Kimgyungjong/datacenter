@@ -2,7 +2,7 @@ import React from "react";
 import { styled } from "styled-components";
 import { ComponentProps } from "@src/interfaces";
 import { typeIcon } from "@src/util/functions";
-const ListComponent: React.FC<ComponentProps> = ({ data }) => {
+const ListComponent: React.FC<ComponentProps> = ({ data, doubleClick }) => {
   return (
     <div>
       {/* 테이블 헤더 */}
@@ -12,8 +12,11 @@ const ListComponent: React.FC<ComponentProps> = ({ data }) => {
         <span style={{ display: "flex", flex: 1 }}>생성자</span>
         <span style={{ display: "flex", flex: 1 }}>생성일</span>
       </StyledTH>
-      {data.map((i) => (
-        <StyledItem key={i.id}>
+      {data?.map((i, idx) => (
+        <StyledItem
+          key={`${i.name}_${idx}`}
+          onDoubleClick={() => doubleClick(i)}
+        >
           <div>
             <img src={typeIcon(i.ext)} alt="" />
             <p>{i.name}</p>

@@ -11,7 +11,7 @@ interface LoginProps {
 
 function Login({ setAuthenticated }: LoginProps) {
   const navigate = useNavigate();
-  const [email, setEmail] = useState("alchera@alcherainc.com");
+  const [email, setEmail] = useState("a@a.com");
   const [password, setPassword] = useState("");
   const [showPswd, setShowPassword] = useState<boolean>(false);
 
